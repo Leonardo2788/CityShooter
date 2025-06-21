@@ -15,10 +15,10 @@ class Game:
         self.clock = pygame.time.Clock()
 
         # Sons
-       # pygame.mixer.music.load(SOUND_PATH + 'background_music.wav')
-       # pygame.mixer.music.play(-1)
-       # self.shoot_sound = pygame.mixer.Sound(SOUND_PATH + 'shoot.wav')
-        # self.explosion_sound = pygame.mixer.Sound(SOUND_PATH + 'explosion.wav')
+        pygame.mixer.music.load(SOUND_PATH + 'background_music.wav')
+        pygame.mixer.music.play(-1)
+        self.shoot_sound = pygame.mixer.Sound(SOUND_PATH + 'shoot.wav')
+        self.explosion_sound = pygame.mixer.Sound(SOUND_PATH + 'explosion.wav')
 
         # Background
         self.background = pygame.image.load(IMAGE_PATH + 'background.png')
