@@ -5,7 +5,7 @@ from config import IMAGE_PATH, BULLET_SPEED
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load(IMAGE_PATH + 'bullet.png')
+        self.image = pygame.image.load(IMAGE_PATH + 'Player1Shot.png')
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
 

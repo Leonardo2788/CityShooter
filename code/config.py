@@ -5,8 +5,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IMAGE_PATH = os.path.join(BASE_DIR, 'assets', 'images') + os.sep
 SOUND_PATH = os.path.join(BASE_DIR, 'assets', 'sounds') + os.sep
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 576
+SCREEN_HEIGHT = 324
 FPS = 60
 
 WHITE = (255, 255, 255)

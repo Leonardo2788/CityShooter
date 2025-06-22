@@ -19,3 +19,4 @@ class Player(pygame.sprite.Sprite):
 
     def shoot(self):
         return Bullet(self.rect.centerx + 40, self.rect.centery)
+
