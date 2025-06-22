@@ -1,10 +1,9 @@
-# game.py
-
 import pygame
 import random
 from config import SCREEN_WIDTH, SCREEN_HEIGHT, IMAGE_PATH, SOUND_PATH, FPS
 from player import Player
 from enemy import Enemy
+from bullet import Bullet
 
 
 class Game:
@@ -20,8 +19,11 @@ class Game:
         self.shoot_sound = pygame.mixer.Sound(SOUND_PATH + 'shoot.wav')
         self.explosion_sound = pygame.mixer.Sound(SOUND_PATH + 'explosion.wav')
 
-        # Background
-        self.background = pygame.image.load(IMAGE_PATH + 'background.png')
+        # Fundo com múltiplas camadas
+        self.background_layers = [
+            {"image": pygame.image.load(IMAGE_PATH + f'Level1Bg{i}.png'), "y": 0, "speed": i * 0.2}
+            for i in range(0, 7)
+        ]
 
         # Sprites
         self.player = Player()
@@ -46,6 +48,17 @@ class Game:
         if pygame.sprite.spritecollide(self.player, self.enemies, False):
             self.running = False
 
+    def scroll_background(self):
+        for layer in self.background_layers:
+            layer["y"] += layer["speed"]
+            if layer["y"] >= SCREEN_HEIGHT:
+                layer["y"] = -SCREEN_HEIGHT
+
+    def draw_background(self):
+        for layer in self.background_layers:
+            self.screen.blit(layer["image"], (0, layer["y"]))
+            self.screen.blit(layer["image"], (0, layer["y"] - SCREEN_HEIGHT))
+
     def run(self):
         while self.running:
             self.clock.tick(FPS)
@@ -55,18 +68,20 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_RIGHT:
                         bullet = self.player.shoot()
                         self.bullets.add(bullet)
                         self.shoot_sound.play()
 
             self.spawn_enemy()
+            self.scroll_background()
+
             self.player.update(keys_pressed)
             self.bullets.update()
             self.enemies.update()
             self.handle_collisions()
 
-            self.screen.blit(self.background, (0, 0))
+            self.draw_background()
             self.player_group.draw(self.screen)
             self.bullets.draw(self.screen)
             self.enemies.draw(self.screen)

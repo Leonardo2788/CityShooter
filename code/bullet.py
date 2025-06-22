@@ -1,5 +1,3 @@
-# bullet.py
-
 import pygame
 from config import IMAGE_PATH, BULLET_SPEED
 
