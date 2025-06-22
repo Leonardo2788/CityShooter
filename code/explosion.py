@@ -5,10 +5,10 @@ from config import IMAGE_PATH
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load(IMAGE_PATH + 'Enemy1Shot.png')
+        self.image = pygame.image.load(IMAGE_PATH + 'Explosion.png')
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        self.timer = 30  # frames da explosão (~0,5 segundos)
+        self.timer = 30
 
     def update(self):
         self.timer -= 1

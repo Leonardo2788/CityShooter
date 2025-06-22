@@ -1,5 +1,5 @@
 import pygame
-from config import IMAGE_PATH, PLAYER_SPEED, SCREEN_WIDTH, SCREEN_HEIGHT
+from config import IMAGE_PATH, PLAYER_SPEED, SCREEN_WIDTH, SCREEN_HEIGHT, PLAYER_HEALTH
 from bullet import Bullet
 
 
@@ -10,6 +10,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (100, SCREEN_HEIGHT // 2)
         self.speed = PLAYER_SPEED
+        self.health = PLAYER_HEALTH
 
     def update(self, keys):
         if keys[pygame.K_UP] and self.rect.top > 0:
@@ -19,4 +20,5 @@ class Player(pygame.sprite.Sprite):
 
     def shoot(self):
         return Bullet(self.rect.centerx + 40, self.rect.centery)
+
 
