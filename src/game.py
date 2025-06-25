@@ -1,19 +1,29 @@
+
 import pygame
 import random
 import time
-from config import *
-from player import Player
-from enemy import Enemy
-from bullet import Bullet
-from enemy_bullet import EnemyBullet
-from explosion import Explosion
+import os
+
+
+
+from config import (
+    SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, BLACK,
+    IMAGE_PATH, SOUND_PATH, PLAYER_HEALTH, PLAYER_SPEED, BULLET_SPEED,
+    ENEMY_SPEED, ENEMY_BULLET_SPEED
+)
+
+
+from .player import Player
+from .enemy import Enemy
+from .bullet import Bullet
+from .enemy_bullet import EnemyBullet
+from .explosion import Explosion
 
 
 class Game:
-    def __init__(self):
-        pygame.init()
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Space Shooter")
+    def __init__(self, screen):
+
+        self.screen = screen
         self.clock = pygame.time.Clock()
 
         self.phase = 1
@@ -24,10 +34,11 @@ class Game:
         self.load_background()
         self.load_music()
 
-        self.shoot_sound = pygame.mixer.Sound(SOUND_PATH + 'shoot.wav')
-        self.enemy_shoot_sound = pygame.mixer.Sound(SOUND_PATH + 'enemy_shoot.wav')
-        self.explosion_sound = pygame.mixer.Sound(SOUND_PATH + 'explosion.wav')
-        self.phase_sound = pygame.mixer.Sound(SOUND_PATH + 'phase_transition.wav')
+
+        self.shoot_sound = pygame.mixer.Sound(os.path.join(SOUND_PATH, 'shoot.wav'))
+        self.enemy_shoot_sound = pygame.mixer.Sound(os.path.join(SOUND_PATH, 'enemy_shoot.wav'))
+        self.explosion_sound = pygame.mixer.Sound(os.path.join(SOUND_PATH, 'explosion.wav'))
+        self.phase_sound = pygame.mixer.Sound(os.path.join(SOUND_PATH, 'phase_transition.wav'))
 
         self.player = Player()
         self.player_group = pygame.sprite.GroupSingle(self.player)
@@ -36,20 +47,26 @@ class Game:
         self.enemies = pygame.sprite.Group()
         self.explosions = pygame.sprite.Group()
 
+
         self.font = pygame.font.SysFont('Arial', 24)
         self.running = True
 
     def load_background(self):
         bg_prefix = 'Level1Bg' if self.phase == 1 else 'Level2Bg'
-        self.background_layers = [
-            {"image": pygame.image.load(IMAGE_PATH + f'{bg_prefix}{i}.png'), "x": 0, "speed": i * 0.2}
-            for i in range(12)
-        ]
+        self.background_layers = []
+        for i in range(12):
+
+            full_image_path = os.path.join(IMAGE_PATH, f'{bg_prefix}{i}.png')
+            image = pygame.image.load(full_image_path)
+
+            self.background_layers.append({"image": image, "x": 0, "speed": i * 0.2})
 
     def load_music(self):
         pygame.mixer.music.stop()
         music_file = 'level1_music.wav' if self.phase == 1 else 'level2_music.wav'
-        pygame.mixer.music.load(SOUND_PATH + music_file)
+
+        full_music_path = os.path.join(SOUND_PATH, music_file)
+        pygame.mixer.music.load(full_music_path)
         pygame.mixer.music.play(-1)
 
     def spawn_enemy(self):
@@ -58,17 +75,20 @@ class Game:
             self.enemies.add(Enemy(shooting=shoot))
 
     def handle_collisions(self):
+
         hits = pygame.sprite.groupcollide(self.bullets, self.enemies, True, True)
         for hit in hits:
             self.explosion_sound.play()
             self.explosions.add(Explosion(hit.rect.centerx, hit.rect.centery))
             self.score += 10
 
+
         if pygame.sprite.spritecollide(self.player, self.enemies, False):
             self.explosion_sound.play()
             self.explosions.add(Explosion(self.player.rect.centerx, self.player.rect.centery))
             self.running = False
             self.show_game_over()
+
 
         bullets_hit = pygame.sprite.spritecollide(self.player, self.enemy_bullets, True)
         if bullets_hit:
@@ -95,10 +115,10 @@ class Game:
         orange_yellow = (255, 200, 0)
 
         text = game_over_font.render("GAME OVER!", True, orange_yellow)
-        self.screen.blit(text, (
-            SCREEN_WIDTH // 2 - text.get_width() // 2,
-            SCREEN_HEIGHT // 2 - text.get_height() // 2
-        ))
+
+        text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        self.screen.blit(text, text_rect)
+
         pygame.display.flip()
         time.sleep(5)
 
@@ -107,6 +127,7 @@ class Game:
             self.clock.tick(FPS)
             keys = pygame.key.get_pressed()
 
+            # Event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -115,6 +136,7 @@ class Game:
                         bullet = self.player.shoot()
                         self.bullets.add(bullet)
                         self.shoot_sound.play()
+
 
             self.spawn_enemy()
             self.scroll_background()
@@ -126,11 +148,13 @@ class Game:
             self.explosions.update()
             self.handle_collisions()
 
+
             for enemy in self.enemies:
                 if self.phase == 2 and random.random() < 0.01:
                     bullet = EnemyBullet(enemy.rect.centerx - 20, enemy.rect.centery)
                     self.enemy_bullets.add(bullet)
                     self.enemy_shoot_sound.play()
+
 
             if self.score >= 100 and self.phase == 1:
                 self.phase = 2
@@ -140,7 +164,8 @@ class Game:
                 self.enemy_bullets.empty()
                 self.phase_sound.play()
                 self.phase_name = "FASE 2"
-                self.phase_transition_timer = FPS * 3  # 3 segundos
+                self.phase_transition_timer = FPS * 3
+
 
             self.draw_background()
 
@@ -150,16 +175,19 @@ class Game:
             self.enemy_bullets.draw(self.screen)
             self.explosions.draw(self.screen)
 
+
             score_text = self.font.render(f"Score: {self.score}", True, WHITE)
             self.screen.blit(score_text, (10, 10))
 
             health_text = self.font.render(f"Health: {self.player.health}", True, WHITE)
             self.screen.blit(health_text, (10, 40))
 
-            # Exibe "FASE 2" durante a transição
+
             if self.phase_transition_timer > 0:
                 phase_text = self.font.render(self.phase_name, True, (255, 255, 0))
-                self.screen.blit(phase_text, (SCREEN_WIDTH // 2 - phase_text.get_width() // 2, SCREEN_HEIGHT // 2 - 20))
+
+                phase_text_rect = phase_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 20))
+                self.screen.blit(phase_text, phase_text_rect)
                 self.phase_transition_timer -= 1
 
             pygame.display.flip()
